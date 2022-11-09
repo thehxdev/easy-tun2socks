@@ -5,78 +5,78 @@ yellow="\e[93m"; bold="\e[1m"; magenta="\033[1;31m"; normal="\e[0m"; cyan="\e[36
 
 GATEWAY=$(/sbin/ip route | awk '/default/ { print $3 }')
 INTERFACE=$(/sbin/ip route | awk '/default/ { print $5 }')
-chmod +x ./tun2socks
+TUN2SOCKS_PATH="./tun2socks"
+chmod +x ${TUN2SOCKS_PATH}
 
 check_if_running_as_root() {
-    if [ "$EUID" -ne 0 ]
-    then echo "Please run as root !"
-    exit
+    if [ "$EUID" -ne 0 ]; then 
+		echo "Please run as root !"
+    	exit 1
     fi
 }
 
 network_interfaces () {
     read -p "$( printf "${bold}${GREEN}your machine default Network interface is?$bold$magenta $INTERFACE $GREEN(y/n): $magenta" )" RESP
     if [ "$RESP" = "y" ]; then
-    echo -e "${bold}${GREEN}you chose$magenta $INTERFACE "
-    read_setting
+		echo -e "${bold}${GREEN}you chose$magenta $INTERFACE "
+		read_setting
     else
-    echo ""
-        network_list=$(ls /sys/class/net)
-        in1=$(echo $network_list | awk '{print $1 }')
-        in2=$(echo $network_list | awk '{print $2 }')
-        in3=$(echo $network_list | awk '{print $3 }')
-        in4=$(echo $network_list | awk '{print $4 }')
-        in5=$(echo $network_list | awk '{print $5 }')
-        in6=$(echo $network_list | awk '{print $6 }')
-        echo -e "${yellow}Select your default Network interface: "
-        PS3=':'
-        options=("$in1" "$in2" "$in3" "$in4" "$in5" "$in6" "Quit")
-        echo -ne "$GREEN"
-        select opt in "${options[@]}"
-        do
-            case $opt in
-                "$in1")
-                    echo ""; echo -e "${pink}you chose$magenta $in1"
-                    INTERFACE=$in1
-                    read_setting
-                    break
-                    ;;
-                "$in2")
-                    echo ""; echo -e "${pink}you chose$magenta $in2"
-                    INTERFACE=$in2
-                    read_setting
-                    break
-                    ;;
-                "$in3")
-                    echo ""; echo -e "${pink}you chose$magenta $in3"
-                    INTERFACE=$in3
-                    read_setting
-                    break
-                    ;;
-                "$in4")
-                    echo ""; echo -e "${pink}you chose$magenta $in4"
-                    INTERFACE=$in4
-                    read_setting
-                    break
-                    ;; 
-                "$in5")
-                    echo ""; echo -e "${pink}you chose$magenta $in5"
-                    INTERFACE=$in5
-                    read_setting
-                    break
-                    ;;
-                "$in6")
-                    echo ""; echo -e "${pink}you chose$magenta $in6"
-                    INTERFACE=$in6
-                    read_setting
-                    break
-                    ;;            
-                "Quit")
-                    exit 0
-                    ;;
-                *) echo "invalid option$magenta $REPLY";;
-        esac
-    done
+		echo ""
+			network_list=$(ls /sys/class/net)
+			in1=$(echo $network_list | awk '{print $1 }')
+			in2=$(echo $network_list | awk '{print $2 }')
+			in3=$(echo $network_list | awk '{print $3 }')
+			in4=$(echo $network_list | awk '{print $4 }')
+			in5=$(echo $network_list | awk '{print $5 }')
+			in6=$(echo $network_list | awk '{print $6 }')
+			echo -e "${yellow}Select your default Network interface: "
+			PS3=':'
+			options=("$in1" "$in2" "$in3" "$in4" "$in5" "$in6" "Quit")
+			echo -ne "$GREEN"
+			select opt in "${options[@]}"; do
+				case $opt in
+					"$in1")
+						echo ""; echo -e "${pink}you chose$magenta $in1"
+						INTERFACE=$in1
+						read_setting
+						break
+						;;
+					"$in2")
+						echo ""; echo -e "${pink}you chose$magenta $in2"
+						INTERFACE=$in2
+						read_setting
+						break
+						;;
+					"$in3")
+						echo ""; echo -e "${pink}you chose$magenta $in3"
+						INTERFACE=$in3
+						read_setting
+						break
+						;;
+					"$in4")
+						echo ""; echo -e "${pink}you chose$magenta $in4"
+						INTERFACE=$in4
+						read_setting
+						break
+						;; 
+					"$in5")
+						echo ""; echo -e "${pink}you chose$magenta $in5"
+						INTERFACE=$in5
+						read_setting
+						break
+						;;
+					"$in6")
+						echo ""; echo -e "${pink}you chose$magenta $in6"
+						INTERFACE=$in6
+						read_setting
+						break
+						;;            
+					"Quit")
+						exit 0
+						;;
+					*) echo "invalid option$magenta $REPLY";;
+			esac
+		done
     fi
 }
 
@@ -107,7 +107,7 @@ tun2socks () {
 	     ip route del default
 	     ip route add $VPN_IP via $GATEWAY dev $INTERFACE metric 1
 	     ip route add default via 198.18.0.1 dev tun0 metric 2
-	     systemd-run --scope -p MemoryLimit=50M -p CPUQuota=10% ./tun2socks -device tun0 -proxy socks5://127.0.0.1:${PORT} --loglevel silent
+	     systemd-run --scope -p MemoryLimit=50M -p CPUQuota=10% ${TUN2SOCKS_PATH} -device tun0 -proxy socks5://127.0.0.1:${PORT} --loglevel silent
          cleanup
 }
 
