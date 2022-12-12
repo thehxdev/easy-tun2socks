@@ -10,7 +10,7 @@ sudo ./easy-tun2socks.sh
 or with options:
 -s remote server addres and -p local proxy port
 ```bash
-sudo ./easy-tun2socks.sh -s 104.16.65.0 -p 2080
+sudo ./easy-tun2socks.sh -s VPN_SERVER_IP -p XRAY/V2RAY_LISTEN_PORT
 ```
 
 You can also use this tool to rest network setting . For example:
